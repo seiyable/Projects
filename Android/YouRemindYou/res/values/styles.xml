@@ -1,0 +1,37 @@
+<resources>
+
+    <!--
+        Base application theme, dependent on API level. This theme is replaced
+        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+    -->
+    <style name="AppBaseTheme" parent="android:Theme.Light">
+        <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+        -->
+    </style>
+
+    <!-- Application theme. -->
+    <style name="AppTheme" parent="AppBaseTheme">
+        <item name="android:windowBackground">@drawable/blackboard</item>
+        <item name="android:windowAnimationStyle">@style/Animation.Activity</item>
+    </style>
+
+    <!-- アニメーションのスタイル -->
+    <!-- <style name="MyAnimTheme" parent="android:Theme"> -->
+    <!-- <item name="android:windowAnimationStyle">@style/Animation.Activity</item> -->
+    <!-- </style> -->
+
+
+    <!-- アニメーションの詳細設定 -->
+    <style name="Animation" parent="android:Animation" />
+
+    <style name="Animation.Activity" parent="android:Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@animator/slide_in_right</item>
+        <item name="android:activityOpenExitAnimation">@animator/slide_out_left</item>
+        <item name="android:activityCloseEnterAnimation">@animator/slide_in_left</item>
+        <item name="android:activityCloseExitAnimation">@animator/slide_out_right</item>
+    </style>
+
+</resources>
