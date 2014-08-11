@@ -67,7 +67,7 @@ char input_string[1000]; //string variable holding the sentence(s) input from us
 int main(){
 	//prototype declaration
 	bool isLetterForWord(char _c);
-	bool isLetterForEndOfWord(char _c);
+	bool isLetterForDelimiter(char _c);
 
 	std::cout << "Enter a sentence in which you want to know how many words are:\n";
 	std::cin.getline(input_string, sizeof(input_string));
@@ -87,7 +87,7 @@ int main(){
 			//when it detects a valid letter for a word, make the boolean true
 			detecting_word = true;
 
-		} else if (isLetterForEndOfWord(c)){
+		} else if (isLetterForDelimiter(c)){
 			//when it detects a letter of the end of a word, 
 
 			if(detecting_word){
@@ -120,6 +120,9 @@ int main(){
 	return(0);
 }
 
+/*
+A function that check if the charactor is a valid letter for a word
+*/
 bool isLetterForWord(char _c){
 	if((_c >= '0' && _c <= '9') || (_c >= 'a' && _c <= 'z') || (_c >= 'A' && _c <= 'Z')){
 		return(true);
@@ -128,7 +131,10 @@ bool isLetterForWord(char _c){
 	}
 }
 
-bool isLetterForEndOfWord(char _c){
+/*
+A function that check if the charactor is a delimiter
+*/
+bool isLetterForDelimiter(char _c){
 	switch(_c){
 		case '.':
 		case ',':
