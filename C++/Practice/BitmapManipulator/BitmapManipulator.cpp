@@ -111,7 +111,7 @@ To give it height, make it two-dimentional array.
 #include <assert.h>
 
 int width, height; //size of bitmap
-const int WIDTH_MIN = 1, WIDTH_MAX = 20, HEIGHT_MIN = 1, HEIGHT_MAX = 20;
+const int WIDTH_MIN = 1, WIDTH_MAX = 80, HEIGHT_MIN = 1, HEIGHT_MAX = 40;
 
 char bitmap[WIDTH_MAX][HEIGHT_MAX]; //bitmap array
 const char ON = 'X'; //if bit value is 1, this char will be displayed
@@ -133,7 +133,7 @@ int main(){
 	std::cout << "Set the size of bitmap.\n";
 	//input width
 	while(true){
-		std::cout << "Width(1~20): ";
+		std::cout << "Width(" << WIDTH_MIN << '~' << WIDTH_MAX<< "): ";
 		std::cin >> width;
 		// check the input value
 		if(check_input(WIDTH_MIN, WIDTH_MAX, width)) break;
@@ -141,7 +141,7 @@ int main(){
 	}
 	//input height
 	while(true){
-		std::cout << "Height(1~20): ";
+		std::cout << "Height(" << HEIGHT_MIN << '~' << HEIGHT_MAX<< "): ";
 		std::cin >> height;
 		// check the input value
 		if(check_input(HEIGHT_MIN, HEIGHT_MAX, height)) break;
@@ -289,7 +289,7 @@ bool inline check_input(const int _min, const int _max, int _input){
 void display_bitmap(){
 	int x; //current x byte
 	int y; //current y coord
-	int bit; //bit value of the current position
+	int bit; //bit for mask
 
 	//vertical orientation
 	for(y = 0; y < height; y++){
