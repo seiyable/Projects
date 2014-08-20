@@ -113,7 +113,7 @@ To give it height, make it two-dimentional array.
 int width, height; //size of bitmap
 const int WIDTH_MIN = 1, WIDTH_MAX = 80, HEIGHT_MIN = 1, HEIGHT_MAX = 40;
 
-char bitmap[WIDTH_MAX][HEIGHT_MAX]; //bitmap array
+char bitmap[WIDTH_MAX/8][HEIGHT_MAX]; //bitmap array
 const char ON = 'X'; //if bit value is 1, this char will be displayed
 const char OFF = '.'; //if bit value is 0, this char will be displayed
 
@@ -126,6 +126,11 @@ int main(){
 	void set_bit(int _x, int _y);
 	void clear_bit(int _x, int _y);
 	void check_bit(int _x, int _y);
+	void draw_xline(int _x, int _y, int _length);
+	void draw_yline(int _x, int _y, int _length);
+	void clear_xline(int _x, int _y, int _length);
+	void clear_yline(int _x, int _y, int _length);
+	void reset();
 
 	/*-----------------------------------------
 	Ask user to set the size of bit map
@@ -256,10 +261,193 @@ int main(){
 		}
 
 		/*-----------------------------------------
+		X-Line function
+		-----------------------------------------*/
+		else if(input_command == "xline"){
+			int xline_x; //x coord for far-left point of the line
+			int xline_y; //y coord for far-left point of the line
+			int length; //length of the line
+
+			//ask user to enter X coord value
+			while(true){
+				std::cout << "X coord of far-left point of the line: ";
+				std::cin >> xline_x;
+				//check the input value
+				if(check_input(0, width-1, xline_x)) break;
+				else continue; //if it's invalid, start over the while loop.
+			}
+
+			//ask user to enter Y coord value
+			while(true){
+				std::cout << "Y coord of far-left point of the line: ";
+				std::cin >> xline_y;
+				//check the input value
+				if(check_input(0, height-1, xline_y)) break;
+				else continue; //if it's invalid, start over the while loop.
+			}
+
+			//ask user to enter length value
+			while(true){
+				std::cout << "length of the line: ";
+				std::cin >> length;
+				//check the input value
+				if(check_input(0, width-1, xline_x + length)) break;
+				else continue; //if it's invalid, start over the while loop.
+			}
+
+			draw_xline(xline_x, xline_y, length); //draw a line with the given positions
+			display_bitmap(); //display the current state of bitmap
+			continue; //start over this while loop
+
+		}
+
+		/*-----------------------------------------
+		Y-Line function
+		-----------------------------------------*/
+		else if(input_command == "yline"){
+			int yline_x; //x coord for far-left point of the line
+			int yline_y; //y coord for far-left point of the line
+			int length; //length of the line
+
+			//ask user to enter X coord value
+			while(true){
+				std::cout << "X coord of far-top point of the line: ";
+				std::cin >> yline_x;
+				//check the input value
+				if(check_input(0, width-1, yline_x)) break;
+				else continue; //if it's invalid, start over the while loop.
+			}
+
+			//ask user to enter Y coord value
+			while(true){
+				std::cout << "Y coord of far-top point of the line: ";
+				std::cin >> yline_y;
+				//check the input value
+				if(check_input(0, height-1, yline_y)) break;
+				else continue; //if it's invalid, start over the while loop.
+			}
+
+			//ask user to enter length value
+			while(true){
+				std::cout << "length of the line: ";
+				std::cin >> length;
+				//check the input value
+				if(check_input(0, height-1, yline_y + length)) break;
+				else continue; //if it's invalid, start over the while loop.
+			}
+
+			draw_yline(yline_x, yline_y, length); //draw a line with the given positions
+			display_bitmap(); //display the current state of bitmap
+			continue; //start over this while loop
+
+		}
+
+		/*-----------------------------------------
+		Clear X-Line function
+		-----------------------------------------*/
+		else if(input_command == "clear_xline"){
+			int clear_xline_x; //x coord for far-left point of the line
+			int clear_xline_y; //y coord for far-left point of the line
+			int length; //length of the line
+
+			//ask user to enter X coord value
+			while(true){
+				std::cout << "X coord of far-left point of the line: ";
+				std::cin >> clear_xline_x;
+				//check the input value
+				if(check_input(0, width-1, clear_xline_x)) break;
+				else continue; //if it's invalid, start over the while loop.
+			}
+
+			//ask user to enter Y coord value
+			while(true){
+				std::cout << "Y coord of far-left point of the line: ";
+				std::cin >> clear_xline_y;
+				//check the input value
+				if(check_input(0, height-1, clear_xline_y)) break;
+				else continue; //if it's invalid, start over the while loop.
+			}
+
+			//ask user to enter length value
+			while(true){
+				std::cout << "length of the line: ";
+				std::cin >> length;
+				//check the input value
+				if(check_input(0, width-1, clear_xline_x + length)) break;
+				else continue; //if it's invalid, start over the while loop.
+			}
+
+			clear_xline(clear_xline_x, clear_xline_y, length); //draw a line with the given positions
+			display_bitmap(); //display the current state of bitmap
+			continue; //start over this while loop
+
+		}
+
+		/*-----------------------------------------
+		Clear Y-Line function
+		-----------------------------------------*/
+		else if(input_command == "clear_yline"){
+			int clear_yline_x; //x coord for far-left point of the line
+			int clear_yline_y; //y coord for far-left point of the line
+			int length; //length of the line
+
+			//ask user to enter X coord value
+			while(true){
+				std::cout << "X coord of far-top point of the line: ";
+				std::cin >> clear_yline_x;
+				//check the input value
+				if(check_input(0, width-1, clear_yline_x)) break;
+				else continue; //if it's invalid, start over the while loop.
+			}
+
+			//ask user to enter Y coord value
+			while(true){
+				std::cout << "Y coord of far-top point of the line: ";
+				std::cin >> clear_yline_y;
+				//check the input value
+				if(check_input(0, height-1, clear_yline_y)) break;
+				else continue; //if it's invalid, start over the while loop.
+			}
+
+			//ask user to enter length value
+			while(true){
+				std::cout << "length of the line: ";
+				std::cin >> length;
+				//check the input value
+				if(check_input(0, height-1, clear_yline_y + length)) break;
+				else continue; //if it's invalid, start over the while loop.
+			}
+
+			clear_yline(clear_yline_x, clear_yline_y, length); //draw a line with the given positions
+			display_bitmap(); //display the current state of bitmap
+			continue; //start over this while loop
+
+		}
+
+		/*-----------------------------------------
+		Reset function
+		-----------------------------------------*/
+		else if(input_command == "reset"){
+			reset(); //call reset function
+			display_bitmap(); //display the current state of bitmap
+			continue; //start over this while loop
+
+		}
+
+		/*-----------------------------------------
+		Exit function
+		-----------------------------------------*/
+		else if(input_command == "exit"){
+			return(0); //exit this program
+
+		}
+
+
+		/*-----------------------------------------
 		If other words entered
 		-----------------------------------------*/
 		 else {
-			std::cout << "The command name is invalid.\nAvailable commands are 'set', 'clear', 'check', 'line', 'reset', 'exit'.\n";
+			std::cout << "The command name is invalid.\nAvailable commands are 'set', 'clear', 'check', 'xline', 'yline', 'clear_xline', 'clear_yline', 'reset', 'exit'.\n";
 			std::cout << '\n';
 			continue; //start over this while loop
 		}
@@ -384,3 +572,74 @@ void inline check_bit(int _x, int _y){
 	else std::cout << "The bit is OFF.\n";
 }
 
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~ draw_xline() *~~~~~~~~~~~~~~~~~~~~~~~~~*/
+//A function that draws a horizontal line
+//
+void inline draw_xline(int _x, int _y, int _length){
+	//make sure the values are valid
+	assert((_x >= 0) && (_x < width));
+	assert((_y >= 0) && (_y < height));
+	assert((_length >= 0) && (_x + _length < width));
+
+	for(int i = _x; i <= _x + _length; i++){
+		set_bit(i, _y);
+	}
+}
+
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~ draw_yline() *~~~~~~~~~~~~~~~~~~~~~~~~~*/
+//A function that draws a vertical line
+//
+void inline draw_yline(int _x, int _y, int _length){
+	//make sure the values are valid
+	assert((_x >= 0) && (_x < width));
+	assert((_y >= 0) && (_y < height));
+	assert((_length >= 0) && (_y + _length < height));
+
+	for(int i = _y; i <= _y + _length; i++){
+		set_bit(_x, i);
+	}
+}
+
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~ clear_xline() *~~~~~~~~~~~~~~~~~~~~~~~~~*/
+//A function that clears a horizontal line
+//
+void inline clear_xline(int _x, int _y, int _length){
+	//make sure the values are valid
+	assert((_x >= 0) && (_x < width));
+	assert((_y >= 0) && (_y < height));
+	assert((_length >= 0) && (_x + _length < width));
+
+	for(int i = _x; i <= _x + _length; i++){
+		clear_bit(i, _y);
+	}
+}
+
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~ clear_yline() *~~~~~~~~~~~~~~~~~~~~~~~~~*/
+//A function that clears a vertical line
+//
+void inline clear_yline(int _x, int _y, int _length){
+	//make sure the values are valid
+	assert((_x >= 0) && (_x < width));
+	assert((_y >= 0) && (_y < height));
+	assert((_length >= 0) && (_y + _length < height));
+
+	for(int i = _y; i <= _y + _length; i++){
+		clear_bit(_x, i);
+	}
+}
+
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~ reset() *~~~~~~~~~~~~~~~~~~~~~~~~~*/
+//A function that resets all the pixels in the bitmap
+//
+void inline reset(){
+	for(int i = 0; i < width; i++){
+		for(int j = 0; j < height; j++){
+			clear_bit(i, j);
+		}
+	}
+}
