@@ -1,0 +1,239 @@
+<meta charset="utf-8">
+
+<script src="js/jquery.js"></script>
+<script src="js/jqconsole.js"></script>
+<script src="js/sugar.js"></script>
+<script src="js/peg.js"></script>
+<script src="js/plt.js"></script>
+
+<script type="text/javascript">
+  // uncomment next line to enable refresh
+  // PLT.refresh = true
+
+  // write helper functions and semantics here
+  var Munch = {
+    dictionary: {
+      /*
+      defines a new word
+
+      def expects two items on the stack
+      the first item is the name of the word as a string
+      second item is the value of the word
+      
+      examples
+
+      2014 "year" def year            -> [2014]
+      2014 "year" def year year year  -> [2014, 2014, 2014]
+      2014 "year" def year 1000 +       -> [3014]
+      */
+      'def': function(stack) {
+        var name = stack.pop();
+        var value = stack.pop();
+
+        Munch.dictionary[name] = value;
+
+        return stack;
+      },
+
+      /*
+      conditionally excutes a quotation
+
+      if expects two items on the stack
+      the first item is the quotation to conditionally execute
+      the second item is a number. if that number is zero, the quotation is not
+      executed. otherwise, it is.
+
+      examples
+
+      0 ["hello"] if -> []
+      1 ["hello"] if -> ["hello"]
+      10 20 0 [+] if -> [10, 20]
+      10 20 1 [+] if -> [30]
+      */
+      'if': function(stack) {
+        var quot = stack.pop();
+        var num = stack.pop();
+        if(num != 0) {
+          // if the number is not zero, evaluate the quotation given the current stack
+          stack = Munch.eval(quot, stack);
+        }
+
+        return stack;
+      },
+
+      /*
+      adds two numbers
+
+      + expects two items on the stack
+      it pops them both, adds, them, then pushes the result on the stack
+
+      examples
+
+      4 5 + -> [9]
+      10 4 5 + + -> [19]
+      */
+      '+': function(stack) {
+        var a = stack.pop();
+        var b = stack.pop();
+        stack.push(a + b);
+
+        return stack;
+      }
+    },
+
+    eval: function(source, initialStack) {
+      // the stack we are operating on
+      var stack;
+      if(initialStack != undefined)
+        // if an initial stack is provided, use that
+        stack = initialStack;
+      else
+        // otherwise, use an empty array 
+        stack = [];
+      
+      // loop through every item in the source
+      for (var i = 0; i < source.length; i++) {
+        if( source[i].word != undefined ) {
+          // if the item is a word, look it up in the dictionary
+          var wordValue = Munch.dictionary[source[i].word];
+          if( typeof wordValue == "function" ) {
+            // if the word's value is a function execute it with the current stack as an argument
+            // make current stack into the result
+            stack = wordValue(stack.clone());
+
+          } else if( typeof wordValue == "object" ) {
+            // if the word's value is a quotation, execute it on the current stack
+            throw new Error("Implement quotation evaluation here!");
+
+          } else if( wordValue == undefined ) {
+            // if the word's value was not found, throw an error
+            throw new Error("Unknown word '" + source[i].word + "'!");
+
+          } else {
+            // else, we know the word's value is not a function or undefined, push it to the stack
+            stack.push(wordValue);
+          }
+
+        } else {
+          // else, we know that the item is not a word, push it to the stack
+          stack.push(source[i]);
+
+        }
+      }
+
+      // return the stack we operated on
+      return stack;
+    }
+  }
+</script>
+
+<title>Munch</title>
+
+<!--
+
+PEG syntax quick reference
+
+'x'   : match the literal character 'x'
+x+    : match x 1 or more times
+x*    : match x 0 or more times
+x?    : match x 0 or 1 times
+!x    : match anything but the match x
+x/y   : match x or y, trying in that order
+[xyz] : match one of the literal character 'x', 'y', or 'z'
+v:x   : assign the result of the match x to the variable v
+
+Full documentation: http://pegjs.majda.cz/documentation#grammar-syntax-and-semantics-parsing-expression-types
+
+-->
+
+<grammar>
+  start       = p:literal+ { return Munch.eval(p) }
+
+  literal     = number / string / quotation / word
+
+  word        = w:[^\[\] ]+ space { return { word:w.join('') } }
+
+  quotation   = '[' q:literal+ ']' space { return q }
+
+  string      = '"' s:[^"]* '"' space { return s.join('') }
+
+  number      = float / integer
+  float       = s:'-'? n:(digit* '.' digit+) space { return parseFloat(s + n.flatten().join('')) }
+  integer     = s:'-'? d:digit+ space { return parseInt(s + d.join('')) }
+
+  digit       = [0123456789]
+
+  space       = ' '*
+  SPACE       = ' '+ / !.
+</grammar>
+
+<h3>Literals</h3>
+<code>45</code>
+<code>20.9</code>
+<code>.990</code>
+<code>-89</code>
+<code>-89.5</code>
+<code>-.5</code>
+<code>"hello world"</code>
+
+<h3>Words</h3>
+<code>3.141592653589793 "pi" def</code>
+<code>1 2 +</code>
+
+<h3>Quotations</h3>
+<code>[1 2 3 4 5]</code>
+<code>[dup *]</code>
+
+<h3>Homework - Words - Literals</h3>
+<p>We talked about <em>true</em> and <em>false</em> being literals, but you can and should implement them as words</p>
+<code>true</code>
+<code>false</code>
+<code>true true false true</code>
+
+<h3>Homework - Words - Arithmetic</h3>
+<p>Implement other arithmetic words</p>
+<code>13 17 -</code>
+<code>13 17 *</code>
+<code>13 17 /</code>
+<code>13 17 ÷</code>
+
+<h3>Homework - Words - Stack Shuffling</h3>
+<p>This should result in <em>[15, 15]</em></p>
+<code>15 dup</code>
+
+<p>This should result in <em>[17, 13]</em></p>
+<code>13 17 swap</code>
+
+<p>This should result in <em>[2, 3, 1]</em></p>
+<code>1 2 3 rollup</code>
+
+<p>This should result in <em>[3, 1, 2]</em></p>
+<code>1 2 3 rolldown</code>
+
+<h3>Homework - Words - Comparison</h3>
+<code>5 6 ></code>
+<code>5 6 =</code>
+<code>5 6 <</code>
+
+<h3>Homework - Words - Random</h3>
+<p>Implement a word that pushes a random number between 0 and 1 to the stack</p>
+<code>random</code>
+<code>random 10 *</code>
+
+<h3>Homework - Loops</h3>
+<p>Use the ideas from <em>if</em> to implement loops
+<code>1 2 3 4 5 6 7 8 [+] 5 times</code>
+<code>["hello" "world"] 5 times</code>
+
+<h3>Homework - Function Definitions</h3>
+<p>Use the ideas from <em>def</em> and <em>if</em> to implement function definitions</p>
+<p>This should return <em>[144]</em></p>
+<code>[dup *] "square" def 12 square</code>
+
+<h3>Homework - Extra - Maybe</h3>
+<p>Implement a word that executes a quotation 50% of the time</p>
+<code>["hello world"] maybe</code>
+<code>[["hello world"] maybe] 10 times</code>
+
+<h3>Homework - Extra - Do something with the snowman</h3>
+<code>☃</code>

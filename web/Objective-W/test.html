@@ -1,0 +1,226 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Main Window</title>
+<meta charset="utf-8">
+<script src="js/jquery.js"></script>
+<script src="js/jqconsole.js"></script>
+<script src="js/sugar.js"></script>
+<script src="js/peg.js"></script>
+<script src="js/plt.js"></script>
+
+
+<script type="text/javascript">
+var subWindows = {};
+
+/*
+window.onload = function(){
+	var url = "testCanvas.html";
+	var window_name = "testCanvas";
+	disp(url, window_name);
+}
+*/
+
+
+  // uncomment next line to enable refresh
+  // PLT.refresh = true
+
+  // write helper functions and semantics here
+  var Munch = {
+    dictionary: {
+      /*
+      defines a new word
+
+      def expects two items on the stack
+      the first item is the name of the word as a string
+      second item is the value of the word
+      
+      examples
+
+      2014 "year" def year            -> [2014]
+      2014 "year" def year year year  -> [2014, 2014, 2014]
+      2014 "year" def year 1000 +       -> [3014]
+      */
+      'def': function(stack) {
+        var name = stack.pop();
+        var value = stack.pop();
+
+        Munch.dictionary[name] = value;
+
+        return stack;
+      },
+
+      /*
+      conditionally excutes a quotation
+
+      if expects two items on the stack
+      the first item is the quotation to conditionally execute
+      the second item is a number. if that number is zero, the quotation is not
+      executed. otherwise, it is.
+
+      examples
+
+      0 ["hello"] if -> []
+      1 ["hello"] if -> ["hello"]
+      10 20 0 [+] if -> [10, 20]
+      10 20 1 [+] if -> [30]
+      */
+      'if': function(stack) {
+        var quot = stack.pop();
+        var num = stack.pop();
+        if(num != 0) {
+          // if the number is not zero, evaluate the quotation given the current stack
+          stack = Munch.eval(quot, stack);
+        }
+
+        return stack;
+      },
+
+      /*
+      adds two numbers
+
+      + expects two items on the stack
+      it pops them both, adds, them, then pushes the result on the stack
+
+      examples
+
+      4 5 + -> [9]
+      10 4 5 + + -> [19]
+      */
+      '+': function(stack) {
+        var a = stack.pop();
+        var b = stack.pop();
+        stack.push(a + b);
+
+        return stack;
+      },
+
+
+      new : function(stack) {
+        var ly = stack.pop();
+        var lx = stack.pop();
+        var name = stack.pop();
+        console.log(name, lx, ly);
+        addNewWindow(name, lx, ly); //for p5.js
+
+        var url = "sub.html";
+		var window_name = name;
+        disp(url, window_name);
+
+        return stack;
+      },
+
+      remove : function(stack) {
+        var name = stack.pop();
+        console.log(name);
+        testCanvas.removeWindow(name);
+
+        return stack;
+      },
+
+      run : function(stack) {
+        console.log("run");
+        testCanvas.run();
+
+        return stack;
+      },
+
+      stop : function(stack) {
+        console.log("stop");
+        testCanvas.stop();
+
+        return stack;
+      }
+
+    },
+
+    eval: function(source, initialStack) {
+      console.log(source);
+      // the stack we are operating on
+      var stack;
+      if(initialStack != undefined) {
+        // if an initial stack is provided, use that
+        stack = initialStack;
+      } else {
+        // otherwise, use an empty array 
+        stack = [];
+      }
+      
+        if( source[0].word != undefined ) {
+          // if the first item is a word, look it up in the dictionary
+          var wordValue = Munch.dictionary[source[0].word];
+          if( typeof wordValue == "function" ) {
+            // if the word's value is a function execute it with the current stack as an argument
+
+            //put all the following values into stack
+            stack = source.clone();
+            stack.shift();
+            
+            // make current stack into the result
+            stack = wordValue(stack.clone());
+
+          } else if( typeof wordValue == "object" ) {
+            // if the word's value is a quotation, execute it on the current stack
+            throw new Error("Implement quotation evaluation here!");
+
+          } else if( wordValue == undefined ) {
+            // if the word's value was not found, throw an error
+            throw new Error("Unknown word '" + source[0].word + "'!");
+
+          } else {
+            // else, we know the word's value is not a function or undefined, push it to the stack
+            //stack.push(wordValue);
+          }
+
+        } else {
+          // else, we know that the item is not a word, push it to the stack
+          //stack.push(source[i]);
+
+        }
+
+      // return the stack we operated on
+      return stack;
+    }
+  }
+</script>
+<!--
+
+PEG syntax quick reference
+
+'x'   : match the literal character 'x'
+x+    : match x 1 or more times
+x*    : match x 0 or more times
+x?    : match x 0 or 1 times
+!x    : match anything but the match x
+x/y   : match x or y, trying in that order
+[xyz] : match one of the literal character 'x', 'y', or 'z'
+v:x   : assign the result of the match x to the variable v
+
+Full documentation: http://pegjs.majda.cz/documentation#grammar-syntax-and-semantics-parsing-expression-types
+
+-->
+<grammar>
+  start       = p:literal+ { return Munch.eval(p) }
+
+  literal     = number / string / quotation / word
+
+  word        = w:[^\[\] ]+ space { return { word:w.join('') } }
+
+  quotation   = '[' q:literal+ ']' space { return q }
+
+  string      = '"' s:[^"]* '"' space { return s.join('') }
+
+  number      = float / integer
+  float       = s:'-'? n:(digit* '.' digit+) space { return parseFloat(s + n.flatten().join('')) }
+  integer     = s:'-'? d:digit+ space { return parseInt(s + d.join('')) }
+
+  digit       = [0123456789]
+
+  space       = ' '*
+  SPACE       = ' '+ / !.
+</grammar>
+
+</head>
+<body>
+</body>
+</html>

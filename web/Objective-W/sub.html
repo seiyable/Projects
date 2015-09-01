@@ -1,0 +1,169 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <title>Sub Window</title>
+  <meta charset="utf-8">
+  <script src="js/jquery.js"></script>
+  <script src="js/jqconsole.js"></script>
+  <script src="js/sugar.js"></script>
+  <script src="js/peg.js"></script>
+  <script src="js/plt.js"></script>
+
+  <script type="text/javascript">
+
+  window.onload = function(){
+    document.title = window.name;
+  }
+
+  function setValue(key, value){
+    console.log("setting value");
+    console.log(key, value);
+    window.opener.infoWindow.setValue(window.name, key, value);
+  }
+
+  function setConditional(key, operator, value, key2, value2){
+    console.log("setting conditional");
+    console.log(key, operator, value, key2, value2);
+    window.opener.infoWindow.setConditional(window.name, key, operator, value, key2, value2);
+  }
+
+
+  // uncomment next line to enable refresh
+  // PLT.refresh = true
+
+  // write helper functions and semantics here
+  var Munch = {
+    dictionary: {
+      'set' : function(stack){
+        console.log("setting");
+        stack.shift();
+        var key = stack.shift();
+        var value = stack.shift();
+        setValue(key, value);
+        return stack;
+      },
+
+      'if' : function(stack){
+        console.log("conditional");
+        stack.shift();
+        var key = stack.shift();
+        var operator = stack.shift();
+        var value = stack.shift();
+        stack.shift();
+        stack.shift();
+        var key2 = stack.shift();
+        var value2 = stack.shift();
+        setConditional(key, operator, value, key2, value2);
+        return stack;
+      },
+
+      'then' : function(stack){
+        return stack;
+      }
+
+
+    },
+
+      
+      eval: function(source, initialStack) {
+      // the stack we are operating on
+      var stack;
+      if(initialStack != undefined) {
+        // if an initial stack is provided, use that
+        stack = initialStack;
+      } else {
+        // otherwise, use the source array 
+        stack = source;
+      }
+      console.log(stack);
+      
+      
+      // loop through every item in the source
+      for (var i = 0; i < source.length; i++) {
+        if( source[i].word != undefined ) {
+          // if the item is a word, look it up in the dictionary
+          var wordValue = Munch.dictionary[source[i].word];
+          if( typeof wordValue == "function" ) {
+            // if the word's value is a function execute it with the current stack as an argument
+            // make current stack into the result
+            stack = wordValue(stack.clone());
+            console.log(stack);
+
+          } else if( typeof wordValue == "object" ) {
+            // if the word's value is a quotation, execute it on the current stack
+            throw new Error("Implement quotation evaluation here!");
+
+          } else if( wordValue == undefined ) {
+            // if the word's value was not found, throw an error
+            throw new Error("Unknown word '" + source[i].word + "'!");
+
+          } else {
+            // else, we know the word's value is not a function or undefined, push it to the stack
+            //stack.push(wordValue);
+          }
+
+        } else {
+          // else, we know that the item is not a word, push it to the stack
+          //stack.push(source[i]);
+
+        }
+      }
+      // return the stack we operated on
+      return stack;
+    }
+}
+</script>
+
+<!--
+
+PEG syntax quick reference
+
+'x'   : match the literal character 'x'
+x+    : match x 1 or more times
+x*    : match x 0 or more times
+x?    : match x 0 or 1 times
+!x    : match anything but the match x
+x/y   : match x or y, trying in that order
+[xyz] : match one of the literal character 'x', 'y', or 'z'
+v:x   : assign the result of the match x to the variable v
+
+Full documentation: http://pegjs.majda.cz/documentation#grammar-syntax-and-semantics-parsing-expression-types
+
+-->
+
+<grammar>
+  start       = p:literal+ { return Munch.eval(p); console.log(p) }
+
+  literal     = number / string / quotation / word / operator
+
+  word        = w:[^\[\]><= ]+ space { return { word:w.join('') } }
+
+  quotation   = '[' q:literal+ ']' space { return q }
+
+  string      = '"' s:[^"]* '"' space { return s.join('') }
+
+  operator    = o:[><=]+ space { return o.join('') }
+
+  number      = float / integer
+  float       = s:'-'? n:(digit* '.' digit+) space { return parseFloat(s + n.flatten().join('')) }
+  integer     = s:'-'? d:digit+ space { return parseInt(s + d.join('')) }
+
+  digit       = [0123456789]
+
+  space       = ' '*
+  SPACE       = ' '+ / !.
+</grammar>
+
+</head>
+<body>
+  <!--
+  <code>set "lx" 500</code>
+  <code>set "ly" 200</code>
+  <code>set "vx" 3</code>
+  <code>set "vy" 5</code>
+  <code>if x > 800 then set "h" 60</code>
+  <code>if x < 0 then set "h" 0</code>
+  -->
+
+</body>
+</html>
