@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Quick-read enabler</title>
+<style>
+.verb{font-weight: bold;}
+.noun{font-weight: bold;}
+
+/*.verb{color: blue;}
+.noun{color: red;}*/
+</style>
+
+</head>
+
+<body>
+
+<script type="text/javascript" src="jspos-0.2.2/lexer.js"></script>
+<script type="text/javascript" src="jspos-0.2.2/lexicon.js_"></script>
+<script type="text/javascript" src="jspos-0.2.2/POSTagger.js"></script>
+
+<div>
+The below text is taken from <a href="http://www.archive.org/stream/cm56b10/cm56b10.txt">Memoirs of the Court of St. Cloud</a>
+</div>
+
+<h3>Sample Text</h3>
+
+<div id="input_text">
+Part of our nature as humans is to develop belief systems that become handy
+ways for seeing and understanding the world around us and for ordering our
+reality. We can refer to these mechanisms as institutional logics.1 Institutional
+logics become normative and play a key role in guiding and determining our
+behavior. Many of these institutional logics arise from our training and education
+and thus the ordered view of the world from the perspective of an economist
+is different from that of an accountant, mechanic, sociologist, physicist, fire
+fighter, or moral philosopher. Regardless, they enable viewing a complex world
+in what promises to be coherent terms and provide a lens for perceptually
+separating noise from signal. Thus, they contribute to comfort, understanding,
+and sense-making.
+</div>
+
+<h3>Tagged Sample Text</h3>
+<div id="tagged_text"></div>
+
+<script type="text/javascript">
+//sprit the input text into space separated words.
+var words = new Lexer().lex(document.getElementById("input_text").innerHTML);
+//get taggs
+var taggedWords = new POSTagger().tag(words);
+
+//taggs that represent verbs
+var verbTaggs = ["VB", "VBD", "VBP", "VBG", "VBN", "VBZ", "MD"];
+var nounTaggs = ["NN", "NNP", "NNPS", "NNS", "PRP", "WP", "EX"];
+
+//result text
+var result = "";
+
+for (i in taggedWords) {
+  var taggedWord = taggedWords[i];
+  var word = taggedWord[0];
+  var tag = taggedWord[1];
+
+  if (verbTaggs.indexOf(tag) != -1){
+  	//if the word is a verb, mark it as a verb
+  	result += "<span class='verb'>" + word + "</span>" + " ";
+
+  } else if (nounTaggs.indexOf(tag) != -1){
+  	//if the word is a noun, mark it as a noun
+  	result += "<span class='noun'>" + word + "</span>" + " ";
+
+  } else {	
+  	result += word + " ";
+  }
+  
+}
+
+document.getElementById("tagged_text").innerHTML = result;
+</script>
+
+</body>
+</html>

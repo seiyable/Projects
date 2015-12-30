@@ -6,12 +6,12 @@ int inByte = 0;         // incoming serial byte
 void setup(){
   Serial.begin(9600);
   Serial.println("Hello, this is Arduino Pro mini!");
-  //establishContact();  // send a byte to establish contact until receiver responds 
+  establishContact();  // send a byte to establish contact until receiver responds 
 }
 
 void loop(){
   // if we get a valid byte, read analog ins:
-  //if (Serial.available() > 0) {
+  if (Serial.available() > 0) {
     
     firstSensor = analogRead(A0);
     secondSensor = analogRead(A1);
@@ -24,14 +24,14 @@ void loop(){
 
     delay(10);
     
-  //}
+  }
 }
 
-/*
+
 void establishContact() {
   while (Serial.available() <= 0) {
     Serial.println("0,0,0");   // send an initial string
     delay(300);
   }
 }
-*/
+

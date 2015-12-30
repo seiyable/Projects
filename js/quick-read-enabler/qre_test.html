@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Quick-read enabler</title>
+</head>
+
+<body>
+
+<script type="text/javascript" src="jspos-0.2.2/lexer.js"></script>
+<script type="text/javascript" src="jspos-0.2.2/lexicon.js_"></script>
+<script type="text/javascript" src="jspos-0.2.2/POSTagger.js"></script>
+
+<div>
+The below text is taken from <a href="http://www.archive.org/stream/cm56b10/cm56b10.txt">Memoirs of the Court of St. Cloud</a>
+</div>
+
+<h3>Sample Text</h3>
+
+<div id="input_text">
+Bonaparte has been as profuse in his disposal of the Imperial
+diadem of Germany, as in his promises of the papal tiara of Rome.
+</div>
+
+<h3>Tagged Sample Text</h3>
+<div id="tagged_text"></div>
+
+<script type="text/javascript">
+// Note the \ at the end of the first line
+var words = new Lexer().lex(document.getElementById("input_text").innerHTML);
+var taggedWords = new POSTagger().tag(words);
+
+console.log(words);
+
+var result = "";
+for (i in taggedWords) {
+  var taggedWord = taggedWords[i];
+  var word = taggedWord[0];
+  var tag = taggedWord[1];
+
+  // Note the use of document.writeln instead of print
+  result += (word + " /" + tag + "<br/>");
+}
+document.getElementById("tagged_text").innerHTML = result;
+</script>
+
+</body>
+</html>

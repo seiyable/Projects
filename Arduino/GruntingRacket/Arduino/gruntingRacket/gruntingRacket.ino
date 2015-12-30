@@ -9,8 +9,12 @@ You can switch to other players whose granting you want to hear by pressing a bu
 //============================== filenames =============================
 //filename should have 8 charactors
 String sharapova[] = {
-"SHARA172WAV\n",
-"shara18 WAV\n"
+  "SHARA1!!WAV\n",
+  "SHARA5!!WAV\n",
+  "SHARA8!!WAV\n",
+  "SHARA9!!WAV\n",
+  "SHARA16!WAV\n",
+  "SHARA17!WAV\n"
 };
 
 String serena[] = {
@@ -27,11 +31,11 @@ String djokovic[] = {
 #include "Adafruit_Soundboard.h"
 
 // Choose any two pins that can be used with SoftwareSerial to RX & TX
-#define SFX_TX 5
-#define SFX_RX 6
+#define SFX_TX 3
+#define SFX_RX 4
 
 // Connect to the RST pin on the Sound Board
-#define SFX_RST 4
+#define SFX_RST 2
 
 // You can also monitor the ACT pin for when audio is playing!
 
@@ -47,10 +51,10 @@ Adafruit_Soundboard sfx = Adafruit_Soundboard(&ss, NULL, SFX_RST);
 
 //============================== global variables =============================
 //Pin assignments -----------------------------------------
-const int xInput = A0;
+const int xInput = A2;
 const int yInput = A1;
-const int zInput = A2;
-const int playerSelectButtonPin = 2;
+const int zInput = A0;
+const int playerSelectButtonPin = 9;
 const int LEDPin = 13;
 
 //Flags -----------------------------------------
@@ -70,11 +74,13 @@ void setup() {
    ss.begin(9600);
    // can also do Serial1.begin(9600);
   
+   /*
    if (!sfx.reset()) {
      Serial.println("Not found");
      while (1);
    }
    Serial.println("SFX board found");
+   */
    
    pinMode(playerSelectButtonPin, INPUT);
    pinMode(LEDPin, OUTPUT);
@@ -82,42 +88,32 @@ void setup() {
 
 //============================== loop() =============================
 void loop() {
-  //flush input on software serial
-  flushInput(); 
-  
   //try to detect swing of racket
   swingDetection();
   
   //play sounds if the racket is swung
   playSounds();
   
-  Serial.println("=================");
-  //delay(3000);
-  
-  if(digitalRead(playerSelectButtonPin) == HIGH){
-    digitalWrite(LEDPin, HIGH);
-  } else {
-    digitalWrite(LEDPin, LOW);
-  }
+  //for debugging use
+  testButtonAndLED();
 }
 
 //============================== swingDetection() =============================
 void swingDetection() {
-  //threshold
-  int thresholdHigh = 600;
-  int thresholdLow = 50;
-  
+  //define threshold
+  int thresholdHigh = 1000;
+  int thresholdLow = 150;
   
   //read analog inputs
   int xRaw = readAxis(xInput);
   int yRaw = readAxis(yInput);
   int zRaw = readAxis(zInput);
   
-  String printThis = "xRaw: " + String(xRaw) + " yRaw: " + String(yRaw) + " zRaw: " + String(zRaw);
+  //String printThis = "xRaw: " + String(xRaw) + " yRaw: " + String(yRaw) + " zRaw: " + String(zRaw);
   //Serial.println(printThis);
   
   //if one of the input values excesses the threshold, turn the flag on
-  if (xRaw > 600 || yRaw > 600 || zRaw > 600 || xRaw < 50 || yRaw < 50 || zRaw < 50){
+  if (xRaw > thresholdHigh || yRaw > thresholdHigh || zRaw > thresholdHigh || xRaw < thresholdLow || yRaw < thresholdLow || zRaw < thresholdLow){
     isSwung = true;
     lastSwing = millis();
     Serial.println("Racket was swung!");
@@ -125,7 +121,6 @@ void swingDetection() {
     
   } else {
     isSwung = false;
-    Serial.println("isSwung turned FALSE");
   }
 }
 
@@ -133,7 +128,9 @@ void swingDetection() {
 void playSounds() {
   if (isSwung && lastSwing - millis() > pauseDuration) {
     Serial.println("trying to play sound");
-    String filename = sharapova[0]; //the file you want to play
+    
+    //choose one filename
+    String filename = chooseFilename();
     
     //convert string to char array
     char name[12];
@@ -148,7 +145,16 @@ void playSounds() {
 
   //reset the flag
   isSwung = false;
-  Serial.println("isSwung turned FALSE");
+}
+
+//============================== chooseFilename() =============================
+// choose one filename randomly
+//
+String chooseFilename() {
+  int arraySize = sizeof(sharapova) / sizeof(String);
+  int num = int(random(arraySize));
+  String filename = sharapova[num];
+  return filename;
 }
 
 //============================== readAxis() =============================
@@ -166,15 +172,15 @@ int readAxis(int axisPin) {
   return reading/sampleSize;
 }
 
-//============================== flushInput() =============================
-void flushInput() {
-  // Read all available serial input to flush pending data.
-  uint16_t timeoutloop = 0;
-  while (timeoutloop++ < 40) {
-    while(ss.available()) {
-      ss.read();
-      timeoutloop = 0;  // If char was received reset the timer
-    }
-    delay(1);
+//============================== testButtonAndLED() =============================
+// Test if they work
+//
+void testButtonAndLED(){
+  if(digitalRead(playerSelectButtonPin) == HIGH){
+    digitalWrite(LEDPin, HIGH);
+  } else {
+    digitalWrite(LEDPin, LOW);
   }
 }
+
+

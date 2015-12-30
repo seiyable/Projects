@@ -1,6 +1,6 @@
 //================ global variables ================
 AxcelData aData; //storing x,y,z axis values
-String filename = "20151027141355.csv"; //the CSV file that you want to load
+String filename = "201511101621.csv"; //the CSV file that you want to load
 
 //selected values of x,y,z charts based on your mouse position
 float xValue = 0, yValue = 0, zValue = 0;
